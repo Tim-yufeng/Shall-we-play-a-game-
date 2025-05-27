@@ -13,7 +13,7 @@ text = ("欢迎来玩小游戏“你是央家的吗”，在这里你可以快�
         "你将通过左右键操作下方的红色方块向左向右移动，接住那些掉下来的南京高校，但是高校名都是英文简写哦，你熟悉南京高校的英文简写吗\n"
         "\n不是每个高校都可以接哦，你只有接住那些央家的高校才能获得分数，接错了会倒扣分数哦。\n"
         "\n（对了，每个高校对应积分的绝对值可能和该学校实力正相关哦）。\n"
-        "\n你在刚开始拥有10分，达到50分你就赢啦！但是如果分数减至0分你就失败喽。\n"
+        "\n你在刚开始拥有10分，达到100分你就赢啦！但是如果分数减至0分你就失败喽。\n"
         "\n准备好了吗？关闭这个窗口，让我们开始吧！")
 wrapped_text = textwrap.fill(text, width=40)
 
@@ -89,7 +89,7 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(0, SCREEN_WIDTH - self.rect.width)
         self.rect.y = -self.rect.height
-        self.speed = random.randint(3, 5)
+        self.speed = random.randint(4, 7) # 设置下落速度区间
         self.score = score  # 障碍物的分值
     def update(self):
         self.rect.y += self.speed
@@ -191,9 +191,9 @@ while running:
             if score <= 0:
                 game_over = True
                 game_result = "很遗憾你输了（好好复习一下央大历史吧傻狍子 bushi）"  # 积分降到 0 分，输掉游戏
-            elif score >= 50:
+            elif score >= 100:
                 game_over = True
-                game_result = "你赢了!你真是太了解央大历史了！"  # 积分达到 50 分，获胜
+                game_result = "你赢了!你真是太了解央大历史了！"  # 积分达到 100 分，获胜
 
         # 绘制画面
         screen.fill(WHITE)
