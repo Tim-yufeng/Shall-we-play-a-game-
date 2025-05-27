@@ -37,12 +37,12 @@ plt.show()
 pygame.init()
 
 # 设置屏幕尺寸
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 1000
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # 设置游戏标题
-pygame.display.set_caption("躲避障碍物")
+pygame.display.set_caption("你是央家的吗")
 
 # 定义颜色
 WHITE = (255, 255, 255)
@@ -190,10 +190,10 @@ while running:
             score += obstacle.score  # 更新积分
             if score <= 0:
                 game_over = True
-                game_result = "You Lost!"  # 积分降到 0 分，输掉游戏
+                game_result = "很遗憾你输了（好好复习一下央大历史吧傻狍子 bushi）"  # 积分降到 0 分，输掉游戏
             elif score >= 50:
                 game_over = True
-                game_result = "You Won!"  # 积分达到 50 分，获胜
+                game_result = "你赢了!你真是太了解央大历史了！"  # 积分达到 50 分，获胜
 
         # 绘制画面
         screen.fill(WHITE)
