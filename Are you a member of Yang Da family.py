@@ -8,13 +8,6 @@ plt.figure()
 matplotlib.rcParams['font.family'] = 'SimHei'
 matplotlib.rcParams['axes.unicode_minus'] = False
 
-# plt.rcParams['font.sans − serif'] = ['SimHei']
-# plt.rcParams['axes.unicode_minus'] = False
-# plt.figtext(0.5,0.8,'欢迎来玩小游戏“你是央家的吗”，在这里你可以快速了解游戏规则\n',fontsize=10,color='purple')
-# plt.text(0,0.6,'你将通过左右键操作下方的红色方块向左向右移动，接住那些掉下来的南京高校，但是高校名都是英文简写哦，你熟悉南京高校的英文简写吗\n',fontsize=10,color='purple')
-# plt.text(0,0.4,'不是每个高校都可以接哦，你只有接住那些央家的高校才能获得分数，接错了会倒扣分数哦。（对了，每个高校对应积分的绝对值可能和该学校实力正相关哦）\n',fontsize=10,color='purple')
-# plt.text(0,0.2,'你在刚开始拥有10分，达到50分你就赢啦！但是如果分数减至0分你就失败喽\n',fontsize=10,color='purple')
-# plt.text(0,0.1,'准备好了吗？关闭这个窗口，让我们开始吧！\n',fontsize=10,color='purple')
 
 text = ("欢迎来玩小游戏“你是央家的吗”，在这里你可以快速了解游戏规则\n"
         "你将通过左右键操作下方的红色方块向左向右移动，接住那些掉下来的南京高校，但是高校名都是英文简写哦，你熟悉南京高校的英文简写吗\n"
@@ -35,6 +28,9 @@ plt.figtext(
 plt.show()
 # 初始化Pygame
 pygame.init()
+# 在初始化Pygame后，设置中文字体
+# 替换下面的路径为实际的中文字体文件路径
+chinese_font = pygame.font.Font(r"C:\Users\金御风\PycharmProjects\Shall-we-play-a-game\Fonts_Package_fc12b50164b107e5d087c5f0bbbf6d82\SimHei\simhei.ttf", 36)  # 如果没有字体文件，可以尝试系统自带字体
 
 # 设置屏幕尺寸
 SCREEN_WIDTH = 1200
@@ -152,6 +148,10 @@ last_obstacle = pygame.time.get_ticks()
 # 游戏主循环
 score=10 # 初始积分
 running = True
+
+matplotlib.rcParams['font.family'] = 'SimHei'
+matplotlib.rcParams['axes.unicode_minus'] = False
+
 while running:
     # 处理事件
     for event in pygame.event.get():
@@ -203,16 +203,13 @@ while running:
         score_text = font.render(f"Score: {score}", True, BLACK)
         screen.blit(score_text, (10, 10))
 
+
     else:
-        # 显示游戏结果
-        result_text = font.render(game_result, True, BLACK)
+# 显示游戏结果 - 使用中文字体
+        result_text = chinese_font.render(game_result, True, BLACK)
         screen.blit(result_text, (
         SCREEN_WIDTH // 2 - result_text.get_width() // 2, SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
 
-    # else:
-    #     # 显示游戏结束文本
-    #     text = font.render("Game Over! Press R to Restart", True, BLACK)
-    #     screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 2 - text.get_height() // 2))
 
         # 处理重新开始
         keys = pygame.key.get_pressed()
