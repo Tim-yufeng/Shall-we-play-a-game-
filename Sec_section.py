@@ -1,36 +1,11 @@
 import pygame
 import random
-import matplotlib.pyplot as plt
 import matplotlib
-import textwrap
-plt.figure()
-# 设置中文字体
-matplotlib.rcParams['font.family'] = 'SimHei'
-matplotlib.rcParams['axes.unicode_minus'] = False
 
-
-text = ("欢迎来玩小游戏“你是央家的吗”，在这里你可以快速了解游戏规则\n"
-        "你将通过左右键操作下方的红色方块向左向右移动，接住那些掉下来的南京高校，但是高校名都是英文简写哦，你熟悉南京高校的英文简写吗\n"
-        "\n不是每个高校都可以接哦，你只有接住那些央家的高校才能获得分数，接错了会倒扣分数哦。\n"
-        "\n（对了，每个高校对应积分的绝对值可能和该学校实力正相关哦）。\n"
-        "\n你在刚开始拥有10分，达到100分你就赢啦！但是如果分数减至0分你就失败喽。\n"
-        "\n准备好了吗？关闭这个窗口，让我们开始吧！")
-wrapped_text = textwrap.fill(text, width=40)
-
-# 在整个图形上居中（0.5, 0.5 表示正中间）
-plt.figtext(
-    0.5, 0.5, wrapped_text,
-    ha='center', va='center',
-    bbox=dict(facecolor='white', alpha=0.8),
-    fontsize=10,
-)
-
-plt.show()
 # 初始化Pygame
 pygame.init()
-# 在初始化Pygame后，设置中文字体
-# 替换下面的路径为实际的中文字体文件路径
-chinese_font = pygame.font.Font(r"C:\Users\金御风\PycharmProjects\Shall-we-play-a-game\Fonts_Package_fc12b50164b107e5d087c5f0bbbf6d82\SimHei\simhei.ttf", 36)  # 如果没有字体文件，可以尝试系统自带字体
+# 设置中文字体
+chinese_font = pygame.font.Font(r"Fonts_Package_fc12b50164b107e5d087c5f0bbbf6d82\SimHei\simhei.ttf", 36)
 
 # 设置屏幕尺寸
 SCREEN_WIDTH = 1200
@@ -38,14 +13,14 @@ SCREEN_HEIGHT = 1000
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # 设置游戏标题
-pygame.display.set_caption("你是央家的吗")
+pygame.display.set_caption("你是中央家族的吗？")
 
 # 定义颜色
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
-PURPLE = (105, 43, 128)  # 修正颜色值
-GREY = (163, 163, 173)   # 修正颜色值
+PURPLE = (105, 43, 128)
+GREY = (163, 163, 173)
 BLUE=(0,0,255)
 GREEN=(0, 128, 0)
 YELLOW=(255, 255, 0)
