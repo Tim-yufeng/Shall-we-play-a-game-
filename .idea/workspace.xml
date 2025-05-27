@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d47307c7-5b34-406b-bade-3eb76e2f926f" name="Changes" comment="feat(FirstTry): Two games as a start">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/First_section.py" beforeDir="false" afterPath="$PROJECT_DIR$/First_section.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sec_section.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sec_section.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

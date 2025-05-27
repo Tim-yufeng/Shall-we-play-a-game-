@@ -10,12 +10,7 @@ def fir_section():
     pygame.display.set_caption("") #TODO：第一回合可以叫什么名字捏
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
-    RED = (255, 0, 0)
     PURPLE = (105, 43, 128)
-    GREY = (163, 163, 173)
-    BLUE=(0,0,255)
-    GREEN=(0, 128, 0)
-    YELLOW=(255, 255, 0)
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 36)
     game_over = False
@@ -46,7 +41,7 @@ def fir_section():
 
                # 设置文字
                 font = pygame.font.Font(None, 24)  # 使用默认字体，字号为24
-                text = font.render(name, True, BLACK)  # 渲染文字，颜色为白色
+                text = font.render(name, True, PURPLE)  # 渲染文字，颜色为白色
                 text_rect = text.get_rect(center=(25, 25))  # 将文字居中
                 self.image.blit(text, text_rect)  # 将文字绘制到障碍物的图像上
 
@@ -62,34 +57,34 @@ def fir_section():
 
     class Obstacle_1(Obstacle):
         def __init__(self):#三江师范学堂
-                super().__init__(PURPLE,'1902',2)
+                super().__init__(WHITE,'1902',2)
     class Obstacle_2(Obstacle):#两江师范学堂
         def __init__(self):
-                super().__init__(YELLOW,'1906',2)
+                super().__init__(WHITE,'1906',2)
     class Obstacle_3(Obstacle):#南京高等师范学校
         def __init__(self):
-                super().__init__(BLUE,'1910',3)
+                super().__init__(WHITE,'1910',3)
     class Obstacle_4(Obstacle): #国立东南大学
         def __init__(self):
-                super().__init__(GREEN,'1921',3)
+                super().__init__(WHITE,'1921',3)
     class Obstacle_5(Obstacle):#国立中央大学
         def __init__(self):
-                super().__init__(GREY,'1928',5)
+                super().__init__(WHITE,'1928',5)
     class Obstacle_6(Obstacle):  #西迁重庆
         def __init__(self):
-                super().__init__(GREEN,'1937',5)
+                super().__init__(WHITE,'1937',5)
     class Obstacle_7(Obstacle):  # 国立南京大学
         def __init__(self):
-                super().__init__(GREEN,'1949',3)
+                super().__init__(WHITE,'1949',3)
     class Obstacle_8(Obstacle):  # 解体QAQ
         def __init__(self):
-                super().__init__(BLUE,'1952',0)
+                super().__init__(WHITE,'1952',0)
     class Obstacle_9(Obstacle):  # 交大西迁
         def __init__(self):
-                super().__init__(BLUE,'1956',0)
+                super().__init__(WHITE,'1956',0)
     class Obstacle_10(Obstacle):  # 科大诞生
         def __init__(self):
-                super().__init__(PURPLE,'1958',0)
+                super().__init__(WHITE,'1958',0)
 
 # 创建精灵组
     all_sprites = pygame.sprite.Group()
@@ -122,16 +117,7 @@ def fir_section():
             # 生成障碍物
             now = pygame.time.get_ticks()
             if now - last_obstacle > OBSTACLE_FREQ:
-                obstacle_type = random.choice([
-                                               Obstacle_1,
-                                               Obstacle_2,
-                                               Obstacle_3,
-                                               Obstacle_4,
-                                               Obstacle_5,
-                                               Obstacle_6,
-                                               Obstacle_7,
-                    Obstacle_8,Obstacle_9,Obstacle_10
-                                               ])
+                obstacle_type = random.choice([Obstacle_1,Obstacle_2,Obstacle_3,Obstacle_4,Obstacle_5,Obstacle_6,Obstacle_7,Obstacle_8,Obstacle_9,Obstacle_10])
                 obstacle = obstacle_type()
                 all_sprites.add(obstacle)
                 obstacles.add(obstacle)
