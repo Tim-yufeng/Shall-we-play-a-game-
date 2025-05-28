@@ -5,8 +5,8 @@ import matplotlib
 
 
 # 设置屏幕尺寸
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT =800
 
 def sec_section():
 # 初始化Pygame
