@@ -5,8 +5,10 @@ import matplotlib
 
 
 # 设置屏幕尺寸
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT =800
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT =600 #感觉1000*800还是有点太大了
+# SCREEN_WIDTH = 1000
+# SCREEN_HEIGHT =800 #感觉1000*800还是有点太大了
 
 def sec_section():
 # 初始化Pygame
@@ -111,6 +113,16 @@ def sec_section():
         def __init__(self):
                 super().__init__(BLUE,'NUAA',-4)
 
+
+    def draw_multiline_text(surface, font, text, color, x, y, line_height=40):
+        """渲染多行文本（支持 `\n`）"""
+        for i, line in enumerate(text.splitlines()):  # 按 `\n` 分割
+            text_surface = font.render(line, True, color)
+            text_rect = text_surface.get_rect()
+            text_rect.topleft = (x, y + i * line_height)
+            surface.blit(text_surface, text_rect)
+
+
     # 创建精灵组
     all_sprites = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
@@ -163,7 +175,7 @@ def sec_section():
                 score += obstacle.score  # 更新积分
                 if score <= 0:
                     game_over = True
-                    game_result = "很遗憾你输了（好好复习一下央大历史吧傻狍子 bushi）"  # 积分降到 0 分，输掉游戏
+                    game_result = "很遗憾你输了\n\n（好好复习一下央大历史吧傻狍子bushi）"  # 积分降到 0 分，输掉游戏
                 elif score >= 100:
                     game_over = True
                     game_result = "你赢了!你真是太了解央大历史了！"  # 积分达到 100 分，获胜
@@ -179,9 +191,10 @@ def sec_section():
 
         else:
     # 显示游戏结果 - 使用中文字体
-            result_text = chinese_font.render(game_result, True, BLACK)
-            screen.blit(result_text, (
-            SCREEN_WIDTH // 2 - result_text.get_width() // 2, SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
+            draw_multiline_text(screen, chinese_font, game_result, BLACK, SCREEN_WIDTH // 2 - 240, SCREEN_HEIGHT // 2 - 50)
+            # result_text = chinese_font.render(game_result, True, BLACK)
+            # screen.blit(result_text, (
+            # SCREEN_WIDTH // 2 - result_text.get_width() // 2, SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
 
 
             # 处理重新开始
@@ -204,3 +217,9 @@ def sec_section():
 
 if __name__ == '__main__':
     sec_section()
+# else:
+#     pygame.init()
+#     chinese_font = pygame.font.Font(r"Fonts_Package_fc12b50164b107e5d087c5f0bbbf6d82\SimHei\simhei.ttf", 36)
+#     SCREEN_WIDTH = 800
+#     SCREEN_HEIGHT = 600
+#     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
