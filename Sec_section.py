@@ -2,14 +2,19 @@ import pygame
 import random
 import matplotlib
 
-
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT =600
+'''
+是这样的，我如果在main.py里运行的话，不知道为什么窗口会变的很小，你可以改任意数值试一下，好像有个最大尺寸，过了就不会再大了（orz
+但是在模块里运行的话就会很大
+但确实为了方便在模块里调试就先用这个尺寸吧，等项目写完之后再改回去
 
 # 设置屏幕尺寸
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT =600 #感觉1000*800还是有点太大了
 # SCREEN_WIDTH = 1000
 # SCREEN_HEIGHT =800 #感觉1000*800还是有点太大了
-
+'''
 def sec_section():
 # 初始化Pygame
     pygame.init()

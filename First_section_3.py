@@ -214,13 +214,13 @@ def fir_section():
                 for obstacle in collided_obstacles:
                     score += obstacle.score
                     if isinstance(obstacle, (Obstacle_8, Obstacle_9, Obstacle_10)):
-                        if score < 1:
+                        if score < 100:
                             game_over = True
-                            game_result = "很遗憾你输了,你家央大就这么解体了，你再也见不到他了哦~"
-                    elif score >= 1:
+                            game_result = """很遗憾,你家央大解体了，你再也见不到他了哦~"""
+                    elif score >= 100:
                         round_completed = True
                         transition_start_time = pygame.time.get_ticks()  # 记录过渡开始时间
-                        after_100_score()  # 生成100个障碍物
+                        after_100_score()
 
             else:
                 # 过渡阶段（round_completed = True）

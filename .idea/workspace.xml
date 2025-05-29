@@ -5,11 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d47307c7-5b34-406b-bade-3eb76e2f926f" name="Changes" comment="feat(FirstTry): Two games as a start">
-      <change beforePath="$PROJECT_DIR$/.idea/Shall-we-play-a-game.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Shall-we-play-a-game.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/All_universities.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/First_section.py" beforeDir="false" afterPath="$PROJECT_DIR$/First_section.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/First_section 3.0.py" beforeDir="false" afterPath="$PROJECT_DIR$/First_section_3.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sec_section.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sec_section.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +24,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="NJ_universities" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -50,8 +55,11 @@
   "keyToString": {
     "Python.Are you a member of Yang Da family.executor": "Run",
     "Python.FirstTry 躲避障碍物.executor": "Run",
+    "Python.First_section 3.0.executor": "Run",
     "Python.First_section.executor": "Run",
+    "Python.First_section_3.executor": "Run",
     "Python.Sec_section.executor": "Run",
+    "Python.main.executor": "Run",
     "Python.躲避障碍物（南京高校）.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
