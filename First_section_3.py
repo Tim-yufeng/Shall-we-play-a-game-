@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
     def NCU_fading(self):
         self.fading=True
         self.fading_particles = True
-        image_paths = ["nju.png","University/hhu.jpg", "University/njau.jpg", "University/njfu.jpg", "University/njtu.jpg", "University/nnu.jpg", "University/seu.jpg"]
+        image_paths = ["nju.png","University/nju.jpg","University/hhu.jpg", "University/njau.jpg", "University/njfu.jpg", "University/njtu.jpg", "University/nnu.jpg", "University/seu.jpg"]
         for i in range(6):
             self.scattering_images.append(ScatteringImage(self.rect.centerx, self.rect.centery, image_paths[i]))
 
