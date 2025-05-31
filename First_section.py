@@ -151,14 +151,24 @@ def fir_section():
             for obstacle in collided_obstacles:
                 score += obstacle.score
                 if isinstance(obstacle, (Obstacle_8, Obstacle_9,Obstacle_10)):
-                    if score >= 1:  # 如果分数达到100，进入下一回合
+                    # if score >= 1:  # 如果分数达到100，进入下一回合
+                    #     round_completed = True
+                    #     game_result = "恭喜进入下一回合!"
+                    #     result_text = chinese_font.render(game_result, True, BLACK)
+                    #     screen.blit(result_text, (
+                    #         SCREEN_WIDTH // 2 - result_text.get_width() // 2,
+                    #         SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
+                    #     sec_section()
+                    if score >= 1:
                         round_completed = True
                         game_result = "恭喜进入下一回合!"
                         result_text = chinese_font.render(game_result, True, BLACK)
-                        screen.blit(result_text, (
-                            SCREEN_WIDTH // 2 - result_text.get_width() // 2,
-                            SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
-                        sec_section()
+                        screen.blit(result_text, (SCREEN_WIDTH // 2 - result_text.get_width() // 2,
+                                                  SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
+                        pygame.display.flip()  # 强制更新屏幕显示结果
+                        pygame.time.delay(4000)  # 暂停2秒让玩家看到结果
+                        running = False  # 退出当前循环
+                        sec_section()  # 进入下一回合
                     else:
                         game_over = True
                         game_result = "很遗憾你输了,你家央大就这么解体了，你再也见不到他了哦~"
@@ -166,14 +176,23 @@ def fir_section():
                         screen.blit(result_text, (
                             SCREEN_WIDTH // 2 - result_text.get_width() // 2,
                             SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
-                elif score >= 1:#为了调试方便先把过关分数改成 1 了，如果我后来忘改回去记得把它删掉（）
+                # elif score >= 1:#为了调试方便先把过关分数改成 1 了，如果我后来忘改回去记得把它删掉（）
+                #     game_result = "你赢了!你家央大已经爱死你啦~~~"
+                #     result_text = chinese_font.render(game_result, True, BLACK)
+                #     screen.blit(result_text, (
+                #         SCREEN_WIDTH // 2 - result_text.get_width() // 2,
+                #         SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
+                #     after_100_score()
+                elif score >= 1:
+                    round_completed = True
                     game_result = "你赢了!你家央大已经爱死你啦~~~"
                     result_text = chinese_font.render(game_result, True, BLACK)
-                    screen.blit(result_text, (
-                        SCREEN_WIDTH // 2 - result_text.get_width() // 2,
-                        SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
+                    screen.blit(result_text, (SCREEN_WIDTH // 2 - result_text.get_width() // 2,
+                                              SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
+                    pygame.display.flip()
+                    pygame.time.delay(1000)
                     after_100_score()
-
+                    pygame.time.delay(6000)
             # 绘制画面
             screen.fill(WHITE)
             all_sprites.draw(screen)
@@ -203,11 +222,12 @@ def after_100_score():
     global OBSTACLE_FREQ, last_obstacle
 
         # 加快障碍物生成速度
-    OBSTACLE_FREQ = 100  # 每50毫秒生成一个障碍物
+    # OBSTACLE_FREQ = 100  # 每50毫秒生成一个障碍物
+    OBSTACLE_FREQ = 200
     last_obstacle = pygame.time.get_ticks()
 
         # 立即生成一批Obstacle8/9/10
-    for _ in range(10):  # 一次性生成10个负面障碍物
+    for _ in range(100):  # 一次性生成10个负面障碍物
         obstacle_type = random.choice([Obstacle_8, Obstacle_9, Obstacle_10])
         obstacle = obstacle_type()
         all_sprites.add(obstacle)

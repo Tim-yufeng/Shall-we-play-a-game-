@@ -5,8 +5,8 @@ import matplotlib
 
 
 # 设置屏幕尺寸
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT =600 #感觉1000*800还是有点太大了
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT =1000 #感觉1000*800还是有点太大了
 # SCREEN_WIDTH = 1000
 # SCREEN_HEIGHT =800 #感觉1000*800还是有点太大了
 
@@ -40,7 +40,7 @@ def sec_section():
     class Player(pygame.sprite.Sprite):
         def __init__(self):
             super().__init__()
-            self.image = pygame.image.load("nju.png").convert_alpha()
+            self.image = pygame.image.load("nju.jpg").convert_alpha()
             self.image = pygame.transform.scale(self.image, (150, 150))
             self.rect = self.image.get_rect()
             self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50)
@@ -93,7 +93,7 @@ def sec_section():
     class njauObstacle(Obstacle):  # 南京农业大学障碍物
         def __init__(self):
                 super().__init__(GREEN,'NJAU',2)
-    class njfuObstacle(Obstacle):  # 南京农业大学障碍物
+    class njfuObstacle(Obstacle):  # 南京林业大学障碍物
         def __init__(self):
                 super().__init__(GREEN,'NJFU',2)
 

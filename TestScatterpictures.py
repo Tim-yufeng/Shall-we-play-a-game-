@@ -3,8 +3,8 @@ import pygame
 import random
 import math
 import numpy as np
-import os
-from Disassembly_of_Yangda2 import Disassembly_of_Yangda
+
+from Disassembly_of_Yangda3 import Disassembly_of_Yangda
 
 # 初始化pygame
 pygame.init()
@@ -22,12 +22,6 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 PURPLE = (105, 43, 128)
 
-# 字体设置
-# try:
-#     chinese_font = pygame.font.Font("simhei.ttf", 36)
-# except:
-#     chinese_font = pygame.font.SysFont(None, 36)
-# font = pygame.font.SysFont(None, 36)
 
 # 游戏变量
 all_sprites = pygame.sprite.Group()
@@ -37,6 +31,7 @@ round_completed = False
 OBSTACLE_FREQ = 500  # 障碍物生成间隔（毫秒）
 last_obstacle = 0
 score = 0
+Targetscore=10
 
 def draw_multiline_text(surface, font, text, color, x, y, line_height=40):
     """渲染多行文本（支持 `\n`）"""
@@ -142,10 +137,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.speed
 
         if self.moving_to_center:
-            # 缓慢向中心移动（每帧移动2像素）
-            # if self.rect.centery > self.target_y:
-            #     self.rect.centery -= 2
-
             if self.rect.centery != self.target_y or self.rect.centerx != self.target_x:
                 d_x=self.rect.centerx - self.target_x
                 d_y=self.rect.centery - self.target_y
@@ -162,7 +153,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.moving_to_center = False
                 Disassembly_of_Yangda(self.rect.centerx, self.rect.centery, 100)
-                # self.trigger_game_end_scattering()  # 到达后触发散射
+
 
         # 手动散射更新
         if self.is_scattering:
@@ -308,6 +299,17 @@ def game_loop():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_s:  # 按S键触发手动散射
                     player.trigger_scattering()
+                if event.key == pygame.K_r and game_over==True:
+                    game_over = False
+                    round_completed = False  # ✅ 新增：清除胜利状态
+                    player.moving_to_center = False  # ✅ 新增：停止移动
+                    # 重新初始化游戏
+                    all_sprites.empty()
+                    obstacles.empty()
+                    player = Player()  # ✅ 新建玩家对象（避免残留状态）
+                    all_sprites.add(player)
+                    score = 0
+                    last_obstacle = pygame.time.get_ticks()
 
         if not game_over:
             # 游戏逻辑更新
@@ -329,13 +331,15 @@ def game_loop():
             for obstacle in collided_obstacles:
                 score += obstacle.score
                 if isinstance(obstacle, (Obstacle_8, Obstacle_9, Obstacle_10)):
-                    if score < 1:
+                    if score < Targetscore:
                         game_over = True
+                        round_completed=False
                         game_result = """很遗憾,你家央大解体了，你再也见不到他了哦~""" #目前失败的字样是无法正常显示的，成功的可以
                         player.moving_to_center = True  # 开始移动
 
-                elif score >= 1:   # 为方便调试分数改为了1，可再调整
+                elif score >= Targetscore:   # 获胜分数在开头修改Targetscore量
                     round_completed = True
+                    game_over=False
                     after_100_score()
                     player.moving_to_center = True  # 开始移动
 
@@ -355,20 +359,21 @@ def game_loop():
                     screen.blit(obj['image'], (obj['x'], obj['y']))
 
         # 显示分数
-        score_text = font.render(f"分数: {score}", True, BLACK)
+        score_text = font.render(f"分数: {score}/{Targetscore}", True, BLACK)
         screen.blit(score_text, (10, 10))
 
         # 游戏结束显示
         if round_completed:
             text = "你赢了!你家央大已经爱死你啦~~~\n\n恭喜进入下一回合!"
             draw_multiline_text(screen, chinese_font, text, BLACK, SCREEN_WIDTH // 2 - 240, SCREEN_HEIGHT // 2 - 50)
+        elif game_over:
+            text = """很遗憾,你家央大解体了，\n\n你再也见不到他了哦~\n\n按下R键重新开始"""
+            draw_multiline_text(screen, chinese_font, text, BLACK, SCREEN_WIDTH // 2 - 180, SCREEN_HEIGHT // 2 - 80)
+
         pygame.display.flip()
-
-
         clock.tick(60)
 
     pygame.quit()
-
 
 if __name__ == "__main__":
     game_loop()

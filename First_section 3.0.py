@@ -2,7 +2,7 @@ import pygame
 import random
 import matplotlib
 from Sec_section import SCREEN_HEIGHT, SCREEN_WIDTH, sec_section
-
+from Disassembly_of_Yangda3 import Disassembly_of_Yangda
 # 初始化颜色和字体
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -255,6 +255,8 @@ def fir_section():
                                       SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
             pygame.display.flip()
             pygame.time.delay(2000)
+            # Disassembly_of_Yangda(SCREEN_WIDTH // 2,SCREEN_HEIGHT // 2,100)
+
             running = False
 
         clock.tick(60)
