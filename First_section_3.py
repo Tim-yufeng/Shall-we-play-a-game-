@@ -53,6 +53,8 @@ class Player(pygame.sprite.Sprite):
         self.scale_step = 0.05  # 每次按键的缩放幅度
         self.target_scale = 1.0  # 目标缩放比例（用于平滑缩放）
         self.scaling_speed = 0.1  # 缩放动画速度
+        self.frozen = False  # 是否被冻结
+        self.frozen_end_time = 0
 
     def NCU_fading(self):
         self.fading = True
@@ -63,13 +65,18 @@ class Player(pygame.sprite.Sprite):
             self.scattering_images.append(ScatteringImage(self.rect.centerx, self.rect.centery, image_paths[i]))
 
     def update(self):
+        if self.frozen:
+            if pygame.time.get_ticks() >= self.frozen_end_time:
+                self.frozen = False
+                self.image.set_alpha(255)  # 恢复不透明
+            return
+
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and self.rect.left > 0:
             self.rect.x -= self.speed
         if keys[pygame.K_RIGHT] and self.rect.right < SCREEN_WIDTH:
             self.rect.x += self.speed
 
-        # 平滑缩放过渡
         if abs(self.scale - self.target_scale) > 0.01:
             self.scale += (self.target_scale - self.scale) * self.scaling_speed
             self._rescale()
@@ -108,8 +115,13 @@ class Player(pygame.sprite.Sprite):
 
     def handle_collision(self, obstacle):
         global double_score_active, double_score_end_time, score, game_over, game_result
+        global current_message, message_end_time
+        if isinstance(obstacle, (Obstacle_14, Obstacle_15, Obstacle_16)):
+            self.freeze(1000)
+            current_message="查无此校。。。"
+            message_end_time = pygame.time.get_ticks() + 1000
 
-        if isinstance(obstacle, UNK_Obstacle):
+        elif isinstance(obstacle, UNK_Obstacle):
             obstacle.on_collide(self)
             self.switch_image(True)
 
@@ -119,7 +131,7 @@ class Player(pygame.sprite.Sprite):
                 self.switch_image(False)
 
             elif score < 100:  # 非双倍状态 + 分数 < 100 才结束游戏
-                Player.NCU_fading(self)
+                self.NCU_fading()
                 game_over = True
                 game_result = """很遗憾,你家央大解体了，你再也见不到他了哦~"""
 
@@ -141,6 +153,12 @@ class Player(pygame.sprite.Sprite):
 
         if self.fading:
             self.image.set_alpha(self.alpha)
+
+    def freeze(self, duration=1000):
+        """暂停活动并变半透明"""
+        self.frozen = True
+        self.frozen_end_time = pygame.time.get_ticks() + duration
+        self.image.set_alpha(128)
 
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, color, name, score, size, mediumSpeed,image_path=None):
@@ -222,6 +240,15 @@ class Goalkeeper(Obstacle):
         speed_boost_end_time = pygame.time.get_ticks() + speed_boost_duration
         current_message = "狭路相逢，开卷！"
         message_end_time = pygame.time.get_ticks() + speed_boost_duration
+class Obstacle_14(Obstacle): #汇文书院
+    def __init__(self):
+        super().__init__(WHITE,'1888',0,50,5)
+class Obstacle_15(Obstacle): #基督书院
+    def __init__(self):
+        super().__init__(WHITE,'1891',0,50,5)
+class Obstacle_16(Obstacle): #益智书院
+    def __init__(self):
+        super().__init__(WHITE,'1894',0,50,5)
 class DisappearParticle:
     def __init__(self, x, y, color=PURPLE):
         self.x = x
@@ -365,9 +392,10 @@ def fir_section():
                 now = pygame.time.get_ticks()
                 if now - last_obstacle > OBSTACLE_FREQ:
                     obstacle_types =[Goalkeeper(),UNK_Obstacle(),Obstacle_1(), Obstacle_2(), Obstacle_3(), Obstacle_4(), Obstacle_5(),
-                                                   Obstacle_6(), Obstacle_7(), Obstacle_8(), Obstacle_9(), Obstacle_10()
+                                                   Obstacle_6(), Obstacle_7(), Obstacle_8(), Obstacle_9(), Obstacle_10(),Obstacle_14(),
+                                     Obstacle_15(),Obstacle_16()
                                                    ]
-                    weights = [1,1, 3, 3, 3, 3, 3,3, 3, 3, 3, 3]
+                    weights = [1,1, 3, 3, 3, 3, 3,3, 3, 3, 3, 3,3,3,3]
                     obstacle_type = random.choices(obstacle_types, weights=weights, k=1)[0]
                     obstacle = type(obstacle_type)()
                     all_sprites.add(obstacle)
@@ -429,7 +457,7 @@ def fir_section():
             pygame.display.flip()
             if fading_completed and pygame.time.get_ticks() - fade_start_time > 2000:
                 running = False
-                
+
         clock.tick(60)
     pygame.quit()
 
