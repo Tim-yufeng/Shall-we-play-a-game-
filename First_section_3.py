@@ -7,6 +7,7 @@ from Sec_section import SCREEN_HEIGHT, SCREEN_WIDTH, sec_section
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 PURPLE = (105, 43, 128)
+winning_score=100
 
 # 全局变量
 all_sprites = pygame.sprite.Group()
@@ -17,29 +18,45 @@ OBSTACLE_FREQ = 500  # 障碍物生成间隔（毫秒）
 last_obstacle = 0
 score = 0
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         try:
-            self.image = pygame.image.load("ncu.jpg").convert_alpha()
-            self.image = pygame.transform.scale(self.image, (150, 150))
+            self.original_image = pygame.image.load("ncu.jpg").convert_alpha()
+            self.original_image = pygame.transform.scale(self.original_image, (150, 150))
         except pygame.error as e:
             print(f"无法加载图片: {e}")
-            self.image = pygame.Surface((150, 150))
-            self.image.fill(PURPLE)
+            self.original_image = pygame.Surface((150, 150), pygame.SRCALPHA)
+            self.original_image.fill(PURPLE)
+
+        self.image = self.original_image.copy()
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50)
         self.speed = 5
-        self.alpha=255
-        self.fading=False
-        self.particles = []  # 粒子容器
+        self.alpha = 255
+        self.fading = False
+        self.particles = []
         self.fading_particles = False
         self.scattering_images = []
 
+        # 缩放相关属性
+        self.scale = 1.0  # 当前缩放比例
+        self.min_scale = 0.3  # 最小缩放比例
+        self.max_scale = 1.5  # 最大缩放比例
+        self.scale_step = 0.05  # 每次按键的缩放幅度
+        self.target_scale = 1.0  # 目标缩放比例（用于平滑缩放）
+        self.scaling_speed = 0.1  # 缩放动画速度
+
+        # 用于检测按键是否已经按下（避免按住持续缩放）
+        self.up_key_pressed = False
+        self.down_key_pressed = False
+
     def NCU_fading(self):
-        self.fading=True
+        self.fading = True
         self.fading_particles = True
-        image_paths = ["nju.png","University/nju.jpg","University/hhu.jpg", "University/njau.jpg", "University/njfu.jpg", "University/njtu.jpg", "University/nnu.jpg", "University/seu.jpg"]
+        image_paths = ["nju.png", "University/nju.jpg", "University/hhu.jpg", "University/njau.jpg",
+                       "University/njfu.jpg", "University/njtu.jpg", "University/nnu.jpg", "University/seu.jpg"]
         for i in range(6):
             self.scattering_images.append(ScatteringImage(self.rect.centerx, self.rect.centery, image_paths[i]))
 
@@ -49,8 +66,14 @@ class Player(pygame.sprite.Sprite):
             self.rect.x -= self.speed
         if keys[pygame.K_RIGHT] and self.rect.right < SCREEN_WIDTH:
             self.rect.x += self.speed
+
+        # 平滑缩放过渡
+        if abs(self.scale - self.target_scale) > 0.01:
+            self.scale += (self.target_scale - self.scale) * self.scaling_speed
+            self._rescale()
+
         if self.fading and self.alpha > 0:
-            self.alpha=max(0,self.alpha-5)
+            self.alpha = max(0, self.alpha - 3)
             self.image.set_alpha(self.alpha)
             if random.random() < 1:
                 self.particles.append(DisappearParticle(
@@ -59,7 +82,27 @@ class Player(pygame.sprite.Sprite):
                 ))
             for img in self.scattering_images:
                 img.update()
+
         self.particles = [p for p in self.particles if p.update()]
+
+    def handle_event(self, event):
+        """处理按键事件（按一下缩放一次）"""
+        if score >= 50:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:  # 上键 - 变大
+                    self.target_scale = min(self.max_scale, self.target_scale + self.scale_step)
+                elif event.key == pygame.K_DOWN:  # 下键 - 变小
+                    self.target_scale = max(self.min_scale, self.target_scale - self.scale_step)
+
+    def _rescale(self):
+        """根据当前缩放比例重新调整图像大小"""
+        center = self.rect.center
+        new_width = max(1, int(150 * self.scale))  # 基于原始尺寸150x150缩放
+        new_height = max(1, int(150 * self.scale))
+        self.image = pygame.transform.smoothscale(self.original_image, (new_width, new_height))
+        self.rect = self.image.get_rect(center=center)
+        if self.fading:
+            self.image.set_alpha(self.alpha)
 
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, color, name, score, size, mediumSpeed):
@@ -142,7 +185,7 @@ class DisappearParticle:
         """更新粒子状态"""
         self.x += self.vx
         self.y += self.vy
-        self.vy += 0.1  # 重力
+        self.vy += 0.01  # 重力
         self.current_life += 1
         self.alpha = 255 - int((self.current_life / self.lifetime) * 255)
         self.size = max(0.5, self.size * 0.97)  # 粒子逐渐缩小
@@ -173,8 +216,7 @@ class ScatteringImage:
             self.image = pygame.Surface((60, 60), pygame.SRCALPHA)
             self.image.fill((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), 128))
 
-        # 随机运动方向
-        angle = random.uniform(0, math.pi * 2)
+        angle = random.uniform(-math.pi,0)
         self.speed = random.uniform(2, 5)
         self.vx = math.cos(angle) * self.speed
         self.vy = math.sin(angle) * self.speed
@@ -186,7 +228,7 @@ class ScatteringImage:
     def update(self):
         self.x += self.vx
         self.y += self.vy
-        self.vy += 0.1  # 轻微重力效果
+        self.vy += 0.01  # 轻微重力效果
         self.rotation += self.rotation_speed
         return True  # 始终存在，不自动消失
 
@@ -246,6 +288,9 @@ def fir_section():
     transition_start_time = None
     transition_duration = 4000  # 过渡阶段持续时间（毫秒）
 
+    fading_completed = False
+    fade_start_time = 0
+
     running = True
     while running:
         for event in pygame.event.get():
@@ -253,6 +298,9 @@ def fir_section():
                 running = False
                 pygame.quit()
                 return
+
+            if not game_over:
+                player.handle_event(event)
 
         if not game_over and pygame.display.get_init():
             screen.fill(WHITE)
@@ -274,10 +322,12 @@ def fir_section():
                 for obstacle in collided_obstacles:
                     score += obstacle.score
                     if isinstance(obstacle, (Obstacle_8, Obstacle_9, Obstacle_10)):
-                        if score < 1:
+                        if score < winning_score:
+                            player.NCU_fading()
                             game_over = True
                             game_result = """很遗憾,你家央大解体了，你再也见不到他了哦~"""
-                    elif score >= 1:
+
+                    elif score >= winning_score:
                         round_completed = True
                         transition_start_time = pygame.time.get_ticks()
                         after_100_score()
@@ -289,9 +339,9 @@ def fir_section():
                     running = False
                     sec_section()  # 进入下一回合
                 collided_obstacles = pygame.sprite.spritecollide(player, obstacles, True)
-                for obstacle in collided_obstacles:
-                    if isinstance(obstacle, (Obstacle_11, Obstacle_12, Obstacle_13)):
-                        player.NCU_fading()
+                #for obstacle in collided_obstacles:
+                 #   if isinstance(obstacle, (Obstacle_11, Obstacle_12, Obstacle_13)):
+
 
             for particle in player.particles:
                 particle.draw(screen)
@@ -313,16 +363,53 @@ def fir_section():
                 draw_multiline_text(screen, chinese_font, text, BLACK, SCREEN_WIDTH // 2 - 240, SCREEN_HEIGHT // 2 - 50)
             pygame.display.flip()
 
-
         elif game_over:
-            # 游戏结束处理
+
+        # 如果是首次进入游戏结束状态，开始计时
+
+            if fade_start_time == 0:
+                fade_start_time = pygame.time.get_ticks()
+
+            # 继续更新玩家状态（播放消失动画）
+
+            player.update()
+
+            # 继续绘制场景
+
             screen.fill(WHITE)
+
+            # 绘制所有精灵（包括障碍物）
+
+            all_sprites.draw(screen)
+
+            # 绘制粒子效果
+
+            for particle in player.particles:
+                particle.draw(screen)
+
+            # 绘制散射图片
+
+            if player.fading:
+
+                for img in player.scattering_images:
+                    img.draw(screen)
+
+            # 检查动画是否完成（玩家完全消失且粒子效果结束）
+
+            if player.alpha <= 0 and not player.particles and not player.scattering_images:
+                fading_completed = True
+
+            # 显示游戏结束文字（在动画播放期间也显示）
+
             result_text = chinese_font.render(game_result, True, BLACK)
+
             screen.blit(result_text, (SCREEN_WIDTH // 2 - result_text.get_width() // 2,
+
                                       SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
             pygame.display.flip()
-            pygame.time.delay(2000)
-            running = False
+            # 动画完成后等待2秒再退出
+            if fading_completed and pygame.time.get_ticks() - fade_start_time > 2000:
+                running = False
 
         clock.tick(60)
 
