@@ -55,6 +55,9 @@ class Player(pygame.sprite.Sprite):
         self.scaling_speed = 0.1  # 缩放动画速度
         self.frozen = False  # 是否被冻结
         self.frozen_end_time = 0
+        # 用于检测按键是否已经按下（避免按住持续缩放）
+        self.up_key_pressed = False
+        self.down_key_pressed = False
 
     def NCU_fading(self):
         self.fading = True
