@@ -17,7 +17,14 @@ round_completed = False
 OBSTACLE_FREQ = 500  # 障碍物生成间隔（毫秒）
 last_obstacle = 0
 score = 0
-
+double_score_active = False
+double_score_end_time = 0
+double_score_duration = 5000
+speed_boost_active = False
+speed_boost_end_time = 0
+speed_boost_duration = 5000
+current_message = ""  # 当前显示的字幕
+message_end_time = 0  # 字幕结束时间
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -25,6 +32,8 @@ class Player(pygame.sprite.Sprite):
         try:
             self.original_image = pygame.image.load("ncu.jpg").convert_alpha()
             self.original_image = pygame.transform.scale(self.original_image, (150, 150))
+            self.double_image = pygame.image.load("ncu&unk.jpg").convert_alpha()
+            self.double_image = pygame.transform.scale(self.double_image, (150, 150))
         except pygame.error as e:
             print(f"无法加载图片: {e}")
             self.original_image = pygame.Surface((150, 150), pygame.SRCALPHA)
@@ -57,7 +66,7 @@ class Player(pygame.sprite.Sprite):
         self.fading_particles = True
         image_paths = ["nju.png", "University/nju.jpg", "University/hhu.jpg", "University/njau.jpg",
                        "University/njfu.jpg", "University/njtu.jpg", "University/nnu.jpg", "University/seu.jpg"]
-        for i in range(6):
+        for i in range(len(image_paths)):
             self.scattering_images.append(ScatteringImage(self.rect.centerx, self.rect.centery, image_paths[i]))
 
     def update(self):
@@ -104,11 +113,47 @@ class Player(pygame.sprite.Sprite):
         if self.fading:
             self.image.set_alpha(self.alpha)
 
+    def handle_collision(self, obstacle):
+        global double_score_active, double_score_end_time, score, game_over, game_result
+
+        if isinstance(obstacle, UNK_Obstacle):
+            obstacle.on_collide(self)
+            self.switch_image(True)
+        elif isinstance(obstacle, (Obstacle_8, Obstacle_9, Obstacle_10)):
+            if double_score_active:
+                double_score_active = False
+                self.switch_image(False)
+            elif score < 100:  # 非双倍状态 + 分数 < 100 才结束游戏
+                Player.NCU_fading(self)
+                game_over = True
+                game_result = """很遗憾,你家央大解体了，你再也见不到他了哦~"""
+
+        else:  # 普通加分方块
+            if double_score_active:
+                score += obstacle.score * 2
+            else:
+                score += obstacle.score
+
+    def switch_image(self, use_double_image):
+        """切换玩家图片"""
+        if use_double_image:
+            self.image = self.double_image
+        else:
+            self.image = self.original_image
+        current_center = self.rect.center
+        self.rect = self.image.get_rect(center=current_center)
+        if self.fading:
+            self.image.set_alpha(self.alpha)
+
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, color, name, score, size, mediumSpeed):
+    def __init__(self, color, name, score, size, mediumSpeed,image_path=None):
         super().__init__()
-        self.image = pygame.Surface((size, size), pygame.SRCALPHA)
-        self.image.fill((*color, 128))  # RGBA，A=128（半透明）
+        if image_path:
+            self.image = pygame.image.load(image_path).convert_alpha()
+            self.image = pygame.transform.scale(self.image, (size, size))
+        else:
+            self.image = pygame.Surface((size, size), pygame.SRCALPHA)
+            self.image.fill((*color, 128))  # RGBA，A=128（半透明）
         font = pygame.font.Font(None, size//2)
         text = font.render(name, True, PURPLE)
         text_rect = text.get_rect(center=(size//2, size//2))
@@ -120,7 +165,8 @@ class Obstacle(pygame.sprite.Sprite):
         self.score = score
 
     def update(self):
-        self.rect.y += self.speed
+        current_speed = self.speed * 2 if speed_boost_active else self.speed
+        self.rect.y += current_speed
         if self.rect.top > SCREEN_HEIGHT:
             self.kill()
 
@@ -163,6 +209,24 @@ class Obstacle_12(Obstacle):
 class Obstacle_13(Obstacle):
     def __init__(self):
         super().__init__(WHITE, '1958', 0,150,3)
+class UNK_Obstacle(Obstacle):
+    def __init__(self):
+        super().__init__(WHITE,"UNK",0,50,5,"unk.jpg")
+
+    def on_collide(self, player):
+        global double_score_active, double_score_end_time
+        double_score_active = True
+        double_score_end_time = pygame.time.get_ticks() + double_score_duration
+class Goalkeeper(Obstacle):
+    def __init__(self):
+        super().__init__(WHITE,"ZJU",0,50,5,"zju.jpg")
+
+    def on_collide(self, player):
+        global speed_boost_active, speed_boost_end_time, current_message, message_end_time
+        speed_boost_active = True
+        speed_boost_end_time = pygame.time.get_ticks() + speed_boost_duration
+        current_message = "狭路相逢，开卷！"
+        message_end_time = pygame.time.get_ticks() + speed_boost_duration
 
 class DisappearParticle:
     def __init__(self, x, y, color=PURPLE):
@@ -203,7 +267,6 @@ class DisappearParticle:
                 self.size
             )
             surface.blit(particle_surface, (int(self.x) - self.size, int(self.y) - self.size))
-
 
 class ScatteringImage:
     def __init__(self, x, y, image_path):
@@ -266,7 +329,8 @@ def after_100_score():
 
 
 def fir_section():
-    global game_over, round_completed, OBSTACLE_FREQ, last_obstacle, score
+    global game_over, round_completed, OBSTACLE_FREQ, last_obstacle, score,double_score_active, double_score_end_time
+    global speed_boost_active,speed_boost_end_time,message_end_time,current_message
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     chinese_font = pygame.font.Font(r"Fonts_Package_fc12b50164b107e5d087c5f0bbbf6d82\SimHei\simhei.ttf", 36)
@@ -293,6 +357,14 @@ def fir_section():
 
     running = True
     while running:
+        current_time = pygame.time.get_ticks()
+        if double_score_active and current_time >= double_score_end_time:
+            double_score_active = False
+            player.switch_image(False)
+        if speed_boost_active and current_time >= speed_boost_end_time:
+            speed_boost_active = False
+        if current_message and current_time >= message_end_time:
+            current_message = ""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -310,9 +382,12 @@ def fir_section():
                 # 正常游戏阶段的障碍物生成
                 now = pygame.time.get_ticks()
                 if now - last_obstacle > OBSTACLE_FREQ:
-                    obstacle_type = random.choice([Obstacle_1, Obstacle_2, Obstacle_3, Obstacle_4, Obstacle_5,
-                                                   Obstacle_6, Obstacle_7, Obstacle_8, Obstacle_9, Obstacle_10])
-                    obstacle = obstacle_type()
+                    obstacle_types =[Goalkeeper(),UNK_Obstacle(),Obstacle_1(), Obstacle_2(), Obstacle_3(), Obstacle_4(), Obstacle_5(),
+                                                   Obstacle_6(), Obstacle_7(), Obstacle_8(), Obstacle_9(), Obstacle_10()
+                                                   ]
+                    weights = [1,1, 3, 3, 3, 3, 3,3, 3, 3, 3, 3]
+                    obstacle_type = random.choices(obstacle_types, weights=weights, k=1)[0]
+                    obstacle = type(obstacle_type)()
                     all_sprites.add(obstacle)
                     obstacles.add(obstacle)
                     last_obstacle = now
@@ -320,28 +395,21 @@ def fir_section():
                 # 碰撞检测
                 collided_obstacles = pygame.sprite.spritecollide(player, obstacles, True)
                 for obstacle in collided_obstacles:
-                    score += obstacle.score
-                    if isinstance(obstacle, (Obstacle_8, Obstacle_9, Obstacle_10)):
-                        if score < winning_score:
-                            player.NCU_fading()
-                            game_over = True
-                            game_result = """很遗憾,你家央大解体了，你再也见不到他了哦~"""
-
-                    elif score >= winning_score:
+                    if isinstance(obstacle, Goalkeeper):
+                        obstacle.on_collide(player)
+                    else:
+                        player.handle_collision(obstacle)
+                    if score >= winning_score:
                         round_completed = True
                         transition_start_time = pygame.time.get_ticks()
                         after_100_score()
 
             else:
-                # 过渡阶段（round_completed = True）
                 now = pygame.time.get_ticks()
                 if now - transition_start_time >= transition_duration:
                     running = False
-                    sec_section()  # 进入下一回合
+                    sec_section()
                 collided_obstacles = pygame.sprite.spritecollide(player, obstacles, True)
-                #for obstacle in collided_obstacles:
-                 #   if isinstance(obstacle, (Obstacle_11, Obstacle_12, Obstacle_13)):
-
 
             for particle in player.particles:
                 particle.draw(screen)
@@ -356,6 +424,11 @@ def fir_section():
             # 显示分数
             score_text = font.render(f"Score: {score}", True, BLACK)
             screen.blit(score_text, (10, 10))
+
+            if current_message:
+                text = chinese_font.render(current_message, True, (0, 0, 255))
+                text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4))
+                screen.blit(text, text_rect)
 
             # 在过渡阶段显示"恭喜进入下一回合"
             if round_completed:
