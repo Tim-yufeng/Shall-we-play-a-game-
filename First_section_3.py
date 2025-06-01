@@ -3,18 +3,17 @@ import random
 import math
 from Sec_section import SCREEN_HEIGHT, SCREEN_WIDTH, sec_section
 
-# 初始化颜色和字体
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 PURPLE = (105, 43, 128)
-winning_score=100
 
 # 全局变量
+winning_score=100
 all_sprites = pygame.sprite.Group()
 obstacles = pygame.sprite.Group()
 game_over = False
 round_completed = False
-OBSTACLE_FREQ = 500  # 障碍物生成间隔（毫秒）
+OBSTACLE_FREQ = 500
 last_obstacle = 0
 score = 0
 double_score_active = False
@@ -23,8 +22,8 @@ double_score_duration = 5000
 speed_boost_active = False
 speed_boost_end_time = 0
 speed_boost_duration = 5000
-current_message = ""  # 当前显示的字幕
-message_end_time = 0  # 字幕结束时间
+current_message = ""
+message_end_time = 0
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -48,18 +47,12 @@ class Player(pygame.sprite.Sprite):
         self.particles = []
         self.fading_particles = False
         self.scattering_images = []
-
-        # 缩放相关属性
         self.scale = 1.0  # 当前缩放比例
         self.min_scale = 0.3  # 最小缩放比例
         self.max_scale = 1.5  # 最大缩放比例
         self.scale_step = 0.05  # 每次按键的缩放幅度
         self.target_scale = 1.0  # 目标缩放比例（用于平滑缩放）
         self.scaling_speed = 0.1  # 缩放动画速度
-
-        # 用于检测按键是否已经按下（避免按住持续缩放）
-        self.up_key_pressed = False
-        self.down_key_pressed = False
 
     def NCU_fading(self):
         self.fading = True
@@ -119,16 +112,18 @@ class Player(pygame.sprite.Sprite):
         if isinstance(obstacle, UNK_Obstacle):
             obstacle.on_collide(self)
             self.switch_image(True)
+
         elif isinstance(obstacle, (Obstacle_8, Obstacle_9, Obstacle_10)):
             if double_score_active:
                 double_score_active = False
                 self.switch_image(False)
+
             elif score < 100:  # 非双倍状态 + 分数 < 100 才结束游戏
                 Player.NCU_fading(self)
                 game_over = True
                 game_result = """很遗憾,你家央大解体了，你再也见不到他了哦~"""
 
-        else:  # 普通加分方块
+        else:
             if double_score_active:
                 score += obstacle.score * 2
             else:
@@ -140,8 +135,10 @@ class Player(pygame.sprite.Sprite):
             self.image = self.double_image
         else:
             self.image = self.original_image
+
         current_center = self.rect.center
         self.rect = self.image.get_rect(center=current_center)
+
         if self.fading:
             self.image.set_alpha(self.alpha)
 
@@ -212,7 +209,6 @@ class Obstacle_13(Obstacle):
 class UNK_Obstacle(Obstacle):
     def __init__(self):
         super().__init__(WHITE,"UNK",0,50,5,"unk.jpg")
-
     def on_collide(self, player):
         global double_score_active, double_score_end_time
         double_score_active = True
@@ -220,14 +216,12 @@ class UNK_Obstacle(Obstacle):
 class Goalkeeper(Obstacle):
     def __init__(self):
         super().__init__(WHITE,"ZJU",0,50,5,"zju.jpg")
-
     def on_collide(self, player):
         global speed_boost_active, speed_boost_end_time, current_message, message_end_time
         speed_boost_active = True
         speed_boost_end_time = pygame.time.get_ticks() + speed_boost_duration
         current_message = "狭路相逢，开卷！"
         message_end_time = pygame.time.get_ticks() + speed_boost_duration
-
 class DisappearParticle:
     def __init__(self, x, y, color=PURPLE):
         self.x = x
@@ -267,7 +261,6 @@ class DisappearParticle:
                 self.size
             )
             surface.blit(particle_surface, (int(self.x) - self.size, int(self.y) - self.size))
-
 class ScatteringImage:
     def __init__(self, x, y, image_path):
         self.x = x
@@ -278,28 +271,22 @@ class ScatteringImage:
         except:
             self.image = pygame.Surface((60, 60), pygame.SRCALPHA)
             self.image.fill((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), 128))
-
         angle = random.uniform(-math.pi,0)
         self.speed = random.uniform(2, 5)
         self.vx = math.cos(angle) * self.speed
         self.vy = math.sin(angle) * self.speed
-
-        # 旋转相关
         self.rotation = 0
         self.rotation_speed = random.uniform(-5, 5)
-
     def update(self):
         self.x += self.vx
         self.y += self.vy
         self.vy += 0.01  # 轻微重力效果
         self.rotation += self.rotation_speed
         return True  # 始终存在，不自动消失
-
     def draw(self, surface):
         rotated_image = pygame.transform.rotate(self.image, self.rotation)
         rect = rotated_image.get_rect(center=(self.x, self.y))
         surface.blit(rotated_image, rect)
-
 def draw_multiline_text(surface, font, text, color, x, y, line_height=40):
     """渲染多行文本（支持 `\n`）"""
     for i, line in enumerate(text.splitlines()):  # 按 `\n` 分割
@@ -307,7 +294,6 @@ def draw_multiline_text(surface, font, text, color, x, y, line_height=40):
         text_rect = text_surface.get_rect()
         text_rect.topleft = (x, y + i * line_height)
         surface.blit(text_surface, text_rect)
-
 def after_100_score():
     occupied_positions = []  # 记录已占用位置
     for _ in range(30):
@@ -327,10 +313,10 @@ def after_100_score():
         all_sprites.add(obstacle)
         obstacles.add(obstacle)
 
-
 def fir_section():
     global game_over, round_completed, OBSTACLE_FREQ, last_obstacle, score,double_score_active, double_score_end_time
     global speed_boost_active,speed_boost_end_time,message_end_time,current_message
+
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     chinese_font = pygame.font.Font(r"Fonts_Package_fc12b50164b107e5d087c5f0bbbf6d82\SimHei\simhei.ttf", 36)
@@ -338,7 +324,6 @@ def fir_section():
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 36)
 
-    # 重置游戏状态
     all_sprites.empty()
     obstacles.empty()
     player = Player()
@@ -348,9 +333,8 @@ def fir_section():
     round_completed = False
     last_obstacle = pygame.time.get_ticks()
 
-    # 新增变量：用于过渡阶段计时
     transition_start_time = None
-    transition_duration = 4000  # 过渡阶段持续时间（毫秒）
+    transition_duration = 4000
 
     fading_completed = False
     fade_start_time = 0
@@ -365,21 +349,19 @@ def fir_section():
             speed_boost_active = False
         if current_message and current_time >= message_end_time:
             current_message = ""
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
                 return
-
             if not game_over:
                 player.handle_event(event)
 
         if not game_over and pygame.display.get_init():
             screen.fill(WHITE)
             all_sprites.update()
-
             if not round_completed:
-                # 正常游戏阶段的障碍物生成
                 now = pygame.time.get_ticks()
                 if now - last_obstacle > OBSTACLE_FREQ:
                     obstacle_types =[Goalkeeper(),UNK_Obstacle(),Obstacle_1(), Obstacle_2(), Obstacle_3(), Obstacle_4(), Obstacle_5(),
@@ -392,7 +374,6 @@ def fir_section():
                     obstacles.add(obstacle)
                     last_obstacle = now
 
-                # 碰撞检测
                 collided_obstacles = pygame.sprite.spritecollide(player, obstacles, True)
                 for obstacle in collided_obstacles:
                     if isinstance(obstacle, Goalkeeper):
@@ -403,7 +384,6 @@ def fir_section():
                         round_completed = True
                         transition_start_time = pygame.time.get_ticks()
                         after_100_score()
-
             else:
                 now = pygame.time.get_ticks()
                 if now - transition_start_time >= transition_duration:
@@ -413,15 +393,10 @@ def fir_section():
 
             for particle in player.particles:
                 particle.draw(screen)
-
-            # 绘制所有精灵
             all_sprites.draw(screen)
-
             if player.fading:
                 for img in player.scattering_images:
                     img.draw(screen)
-
-            # 显示分数
             score_text = font.render(f"Score: {score}", True, BLACK)
             screen.blit(score_text, (10, 10))
 
@@ -430,62 +405,32 @@ def fir_section():
                 text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4))
                 screen.blit(text, text_rect)
 
-            # 在过渡阶段显示"恭喜进入下一回合"
             if round_completed:
                 text = "你赢了!你家央大已经爱死你啦~~~\n\n恭喜进入下一回合!"
                 draw_multiline_text(screen, chinese_font, text, BLACK, SCREEN_WIDTH // 2 - 240, SCREEN_HEIGHT // 2 - 50)
             pygame.display.flip()
 
         elif game_over:
-
-        # 如果是首次进入游戏结束状态，开始计时
-
             if fade_start_time == 0:
                 fade_start_time = pygame.time.get_ticks()
-
-            # 继续更新玩家状态（播放消失动画）
-
             player.update()
-
-            # 继续绘制场景
-
             screen.fill(WHITE)
-
-            # 绘制所有精灵（包括障碍物）
-
             all_sprites.draw(screen)
-
-            # 绘制粒子效果
-
             for particle in player.particles:
                 particle.draw(screen)
-
-            # 绘制散射图片
-
             if player.fading:
-
                 for img in player.scattering_images:
                     img.draw(screen)
-
-            # 检查动画是否完成（玩家完全消失且粒子效果结束）
-
             if player.alpha <= 0 and not player.particles and not player.scattering_images:
                 fading_completed = True
-
-            # 显示游戏结束文字（在动画播放期间也显示）
-
             result_text = chinese_font.render(game_result, True, BLACK)
-
             screen.blit(result_text, (SCREEN_WIDTH // 2 - result_text.get_width() // 2,
-
                                       SCREEN_HEIGHT // 2 - result_text.get_height() // 2))
             pygame.display.flip()
-            # 动画完成后等待2秒再退出
             if fading_completed and pygame.time.get_ticks() - fade_start_time > 2000:
                 running = False
-
+                
         clock.tick(60)
-
     pygame.quit()
 
 if __name__ == '__main__':
