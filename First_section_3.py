@@ -22,6 +22,8 @@ double_score_duration = 5000
 speed_boost_active = False
 speed_boost_end_time = 0
 speed_boost_duration = 5000
+protect_active = False
+protect_end_time = 0
 current_message = ""
 message_end_time = 0
 
@@ -33,6 +35,8 @@ class Player(pygame.sprite.Sprite):
             self.original_image = pygame.transform.scale(self.original_image, (150, 150))
             self.double_image = pygame.image.load("ncu&unk.jpg").convert_alpha()
             self.double_image = pygame.transform.scale(self.double_image, (150, 150))
+            self.protect_image = pygame.image.load("相濡以沫.jpg").convert_alpha()
+            self.protect_image = pygame.transform.scale(self.protect_image, (150, 150))
         except pygame.error as e:
             print(f"无法加载图片: {e}")
             self.original_image = pygame.Surface((150, 150), pygame.SRCALPHA)
@@ -55,6 +59,9 @@ class Player(pygame.sprite.Sprite):
         self.scaling_speed = 0.1  # 缩放动画速度
         self.frozen = False  # 是否被冻结
         self.frozen_end_time = 0
+        self.protected = False
+        self.protection_end_time = 0
+        self.protection_duration = 5000
         # 用于检测按键是否已经按下（避免按住持续缩放）
         self.up_key_pressed = False
         self.down_key_pressed = False
@@ -71,8 +78,12 @@ class Player(pygame.sprite.Sprite):
         if self.frozen:
             if pygame.time.get_ticks() >= self.frozen_end_time:
                 self.frozen = False
-                self.image.set_alpha(255)  # 恢复不透明
+                self.image.set_alpha(255)
             return
+
+        if self.protected and pygame.time.get_ticks() >= self.protection_end_time:
+            self.protected = False
+            self.switch_image_with_CQU(False)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and self.rect.left > 0:
@@ -126,12 +137,18 @@ class Player(pygame.sprite.Sprite):
 
         elif isinstance(obstacle, UNK_Obstacle):
             obstacle.on_collide(self)
-            self.switch_image(True)
+            self.switch_image_with_UNK(True)
+        elif isinstance(obstacle, CQU_Obstacle):
+            obstacle.on_collide(self)
 
         elif isinstance(obstacle, (Obstacle_8, Obstacle_9, Obstacle_10)):
-            if double_score_active:
+            if self.protected:
+                self.protected = False
+                self.switch_image_with_CQU(False)
+
+            elif double_score_active:
                 double_score_active = False
-                self.switch_image(False)
+                self.switch_image_with_UNK(False)
 
             elif score < 100:  # 非双倍状态 + 分数 < 100 才结束游戏
                 self.NCU_fading()
@@ -144,7 +161,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 score += obstacle.score
 
-    def switch_image(self, use_double_image):
+    def switch_image_with_UNK(self, use_double_image):
         """切换玩家图片"""
         if use_double_image:
             self.image = self.double_image
@@ -154,6 +171,16 @@ class Player(pygame.sprite.Sprite):
         current_center = self.rect.center
         self.rect = self.image.get_rect(center=current_center)
 
+        if self.fading:
+            self.image.set_alpha(self.alpha)
+
+    def switch_image_with_CQU(self, use_protect_image):
+        if use_protect_image:
+            self.image = self.protect_image
+        else:
+            self.image = self.original_image
+        current_center = self.rect.center
+        self.rect = self.image.get_rect(center=current_center)
         if self.fading:
             self.image.set_alpha(self.alpha)
 
@@ -252,6 +279,15 @@ class Obstacle_15(Obstacle): #基督书院
 class Obstacle_16(Obstacle): #益智书院
     def __init__(self):
         super().__init__(WHITE,'1894',0,50,5)
+class CQU_Obstacle(Obstacle):
+    def __init__(self):
+        super().__init__(WHITE,"CQU",0,50,5,"cqu.jpg")
+
+    def on_collide(self, player):
+        player.protected = True
+        player.protection_end_time = pygame.time.get_ticks() + player.protection_duration
+        player.switch_image_with_CQU(True)
+
 class DisappearParticle:
     def __init__(self, x, y, color=PURPLE):
         self.x = x
@@ -374,7 +410,7 @@ def fir_section():
         current_time = pygame.time.get_ticks()
         if double_score_active and current_time >= double_score_end_time:
             double_score_active = False
-            player.switch_image(False)
+            player.switch_image_with_UNK(False)
         if speed_boost_active and current_time >= speed_boost_end_time:
             speed_boost_active = False
         if current_message and current_time >= message_end_time:
@@ -394,11 +430,11 @@ def fir_section():
             if not round_completed:
                 now = pygame.time.get_ticks()
                 if now - last_obstacle > OBSTACLE_FREQ:
-                    obstacle_types =[Goalkeeper(),UNK_Obstacle(),Obstacle_1(), Obstacle_2(), Obstacle_3(), Obstacle_4(), Obstacle_5(),
+                    obstacle_types =[CQU_Obstacle(),Goalkeeper(),UNK_Obstacle(),Obstacle_1(), Obstacle_2(), Obstacle_3(), Obstacle_4(), Obstacle_5(),
                                                    Obstacle_6(), Obstacle_7(), Obstacle_8(), Obstacle_9(), Obstacle_10(),Obstacle_14(),
                                      Obstacle_15(),Obstacle_16()
                                                    ]
-                    weights = [1,1, 3, 3, 3, 3, 3,3, 3, 3, 3, 3,3,3,3]
+                    weights = [1,1,1, 3, 3, 3, 3, 3,3, 3, 3, 3, 3,3,3,3]
                     obstacle_type = random.choices(obstacle_types, weights=weights, k=1)[0]
                     obstacle = type(obstacle_type)()
                     all_sprites.add(obstacle)
