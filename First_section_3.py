@@ -37,6 +37,9 @@ class Player(pygame.sprite.Sprite):
             self.double_image = pygame.transform.scale(self.double_image, (150, 150))
             self.protect_image = pygame.image.load("相濡以沫.jpg").convert_alpha()
             self.protect_image = pygame.transform.scale(self.protect_image, (150, 150))
+            self.girl_image = pygame.image.load("南高师.jpg").convert_alpha()
+            self.girl_image = pygame.transform.scale(self.girl_image, (150, 150))
+
         except pygame.error as e:
             print(f"无法加载图片: {e}")
             self.original_image = pygame.Surface((150, 150), pygame.SRCALPHA)
@@ -62,6 +65,9 @@ class Player(pygame.sprite.Sprite):
         self.protected = False
         self.protection_end_time = 0
         self.protection_duration = 5000
+        self.girl_active = False
+        self.girl_end_time = 0
+        self.girl_duration = 5000
         # 用于检测按键是否已经按下（避免按住持续缩放）
         self.up_key_pressed = False
         self.down_key_pressed = False
@@ -84,6 +90,10 @@ class Player(pygame.sprite.Sprite):
         if self.protected and pygame.time.get_ticks() >= self.protection_end_time:
             self.protected = False
             self.switch_image_with_CQU(False)
+
+        if self.girl_active and pygame.time.get_ticks() >= self.girl_end_time:
+            self.girl_active = False
+            self.switch_image_with_PKU(False)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and self.rect.left > 0:
@@ -140,6 +150,8 @@ class Player(pygame.sprite.Sprite):
             self.switch_image_with_UNK(True)
         elif isinstance(obstacle, CQU_Obstacle):
             obstacle.on_collide(self)
+        elif isinstance(obstacle, PKU_Obstacle):
+            obstacle.on_collide(self)
 
         elif isinstance(obstacle, (Obstacle_8, Obstacle_9, Obstacle_10)):
             if self.protected:
@@ -165,6 +177,18 @@ class Player(pygame.sprite.Sprite):
         """切换玩家图片"""
         if use_double_image:
             self.image = self.double_image
+        else:
+            self.image = self.original_image
+
+        current_center = self.rect.center
+        self.rect = self.image.get_rect(center=current_center)
+
+        if self.fading:
+            self.image.set_alpha(self.alpha)
+
+    def switch_image_with_PKU(self,use_pku_image):
+        if use_pku_image:
+            self.image = self.girl_image
         else:
             self.image = self.original_image
 
@@ -287,6 +311,14 @@ class CQU_Obstacle(Obstacle):
         player.protected = True
         player.protection_end_time = pygame.time.get_ticks() + player.protection_duration
         player.switch_image_with_CQU(True)
+class PKU_Obstacle(Obstacle):
+    def __init__(self):
+        super().__init__(WHITE,'PKU',0,50,5,"pku.jpg")
+
+    def on_collide(self, player):
+        player.girl_active = True
+        player.girl_end_time = pygame.time.get_ticks() + player.girl_duration
+        player.switch_image_with_PKU(True)
 
 class DisappearParticle:
     def __init__(self, x, y, color=PURPLE):
@@ -430,11 +462,11 @@ def fir_section():
             if not round_completed:
                 now = pygame.time.get_ticks()
                 if now - last_obstacle > OBSTACLE_FREQ:
-                    obstacle_types =[CQU_Obstacle(),Goalkeeper(),UNK_Obstacle(),Obstacle_1(), Obstacle_2(), Obstacle_3(), Obstacle_4(), Obstacle_5(),
+                    obstacle_types =[PKU_Obstacle(),CQU_Obstacle(),Goalkeeper(),UNK_Obstacle(),Obstacle_1(), Obstacle_2(), Obstacle_3(), Obstacle_4(), Obstacle_5(),
                                                    Obstacle_6(), Obstacle_7(), Obstacle_8(), Obstacle_9(), Obstacle_10(),Obstacle_14(),
                                      Obstacle_15(),Obstacle_16()
                                                    ]
-                    weights = [1,1,1, 3, 3, 3, 3, 3,3, 3, 3, 3, 3,3,3,3]
+                    weights = [1,1,1,1, 3, 3, 3, 3, 3,3, 3, 3, 3, 3,3,3,3]
                     obstacle_type = random.choices(obstacle_types, weights=weights, k=1)[0]
                     obstacle = type(obstacle_type)()
                     all_sprites.add(obstacle)
