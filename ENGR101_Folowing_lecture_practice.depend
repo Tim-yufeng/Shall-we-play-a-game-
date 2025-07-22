@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1750684562 source:d:\c\engr101_folowing_lecture_practice\main.c
+	<stdio.h>
+	<stdlib.h>
+
+1750682809 source:d:\c\engr101_folowing_lecture_practice\addalldigits.cpp
+	<stdio.h>
+	<math.h>
+
+1750684562 source:d:\c\engr101_folowing_lecture_practice\addalldigits.c
+	<stdio.h>
+	<math.h>
+
