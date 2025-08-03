@@ -19,11 +19,11 @@ Move getOutOfBoundary(const Tank& aiTank, const Map& map){
     const int dx[4] = {0, -1, 0, 1};   // Up, Left, Down, Right
     const int dy[4] = {-1, 0, 1, 0};
 
-    const int SIZE = map.getSize();
+    // const int SIZE = map.getSize();
 
     std::queue<std::pair<int, int>> q;
     std::unordered_map<int, std::pair<int, int>> parent;  // key = y * 100 + x
-    std::vector<std::vector<bool>> visited(SIZE, std::vector<bool>(SIZE, false));
+    std::vector<std::vector<bool>> visited(MAX_SIZE, std::vector<bool>(MAX_SIZE, false));
 
     q.push({ai_x, ai_y});
     visited[ai_y][ai_x] = true;
@@ -41,7 +41,7 @@ Move getOutOfBoundary(const Tank& aiTank, const Map& map){
         for (int d = 0; d < 4; ++d) {
             int nx = x + dx[d];
             int ny = y + dy[d];
-            if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && !visited[ny][nx]) {
+            if (nx >= 0 && nx < MAX_SIZE && ny >= 0 && ny < MAX_SIZE && !visited[ny][nx]) {
                 visited[ny][nx] = true;
                 q.push({nx, ny});
                 parent[ny * 100 + nx] = {x, y};
@@ -108,7 +108,7 @@ Move decideMove(const Tank& self, const Tank& enemy, const Map& map, const std::
 
     // ---- Step 2: Aggressive if stronger ----
     int dist = abs(x - ex) + abs(y - ey);
-    if (selfHP > enemyHP && dist > 1) {
+    if (selfHP >= enemyHP && dist > 1) {
         // approach the enemy
         if (x < ex) return dir == D_Right ? M_Forward : M_Right;
         if (x > ex) return dir == D_Left  ? M_Forward : M_Left;
@@ -130,9 +130,9 @@ Move decideMove(const Tank& self, const Tank& enemy, const Map& map, const std::
 }
 
 Move AI::getMove(const Tank& aiTank, const Tank& playerTank, const Map& map, const std::vector<Bullet>& bullets){
-    auto [ai_x, ai_y]=aiTank.getPos();
-    auto [player_x, player_y]=playerTank.getPos();
-    Direction dir=aiTank.getDirection();
+    // auto [ai_x, ai_y]=aiTank.getPos();
+    // auto [player_x, player_y]=playerTank.getPos();
+    // Direction dir=aiTank.getDirection();
     if(!map.isInMap(aiTank)){
         return getOutOfBoundary(aiTank, map);
     }

@@ -10,8 +10,9 @@
 #include "Renderer.h"
 // #include "AI.h"
 
-Game::Game(GameMode mode=PVP, int init_lifept=5) : turn(1), map(20),tankB(init_lifept,6,6,'B',D_Up), tankA(init_lifept,12,12,'A',D_Up),  // initial config of two tanks' position and direction
-dir_A(M_Invalid), dir_B(M_Invalid), game_mode(mode) {}
+Game::Game(GameMode mode=PVP, int init_lifept=5) : game_mode(mode), map(20), tankA(init_lifept,12,12,'A',D_Up), tankB(init_lifept,6,6,'B',D_Up), 
+ dir_A(M_Invalid), dir_B(M_Invalid), turn(1), gameResult(0) {}                                                         // initial config of two tanks' position and direction
+
 
 int Game::getTurn(){
     return turn;
@@ -24,9 +25,11 @@ void Game::start(){
         nextTurn();
         if(judgeGame()) break;
         turn++;
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));  // wait for 0.5 seconds
+        if(game_mode==DEMO) std::this_thread::sleep_for(std::chrono::milliseconds(500));  // wait for 0.5 seconds
     }
-    std::cout<<"Game Over!\n";
+    renderer.render(map, tankA, tankB, bullets, showDirection, turn);  // display again before game ends
+    std::cout<<"\033[1;31m Game over! \033[0m\n"<<"\n"<<RESET;
+    showGameResult();
     
 }
 void Game::nextTurn(){
@@ -61,7 +64,7 @@ void Game::handleInput(){
         valid=true;
     }
     else{
-    std::cout << "[Player A] Enter move (f:forward, l:left, r:right, dir:show direction, lab:show label): ";
+    std::cout << RED << "[Player A]" << RESET << "Enter move (f:forward, l:left, r:right, dir:show direction, lab:show label): ";
     std::string cmd1;
     std::cin>>cmd1;
     if(cmd1=="move"){
@@ -109,7 +112,7 @@ void Game::handleInput(){
         valid=true;
     }
     else{
-    std::cout << "[Player B] Enter move (f:forward, l:left, r:right, dir:show direction, lab:show label): ";
+    std::cout << BLUE << "[Player B]" << RESET << "Enter move (f:forward, l:left, r:right, dir:show direction, lab:show label): ";
     std::string cmd2;
     std::cin>>cmd2;
     if(cmd2=="move"){
@@ -159,12 +162,15 @@ void Game::moveBullets(){
 void Game::detectTankCollision(){
     if(tankA.getPos()==tankB.getPos()){
         if(tankA.getLifePt()>tankB.getLifePt()){
-            std::cout<<"Tank A won due to collision!\n";
+            // std::cout<<"Tank A won due to collision!\n";
+            gameResult=1; 
         }
         else if(tankA.getLifePt()<tankB.getLifePt()){
-            std::cout<<"Tank B won due to collision!\n";
+            // std::cout<<"Tank B won due to collision!\n";
+            gameResult=2;
         }
-        else std::cout<<"Draw due to collision!\n";
+        // else std::cout<<"Draw due to collision!\n";
+        else gameResult=3;
         gameOver=true;
     }
 
@@ -201,20 +207,27 @@ void Game::detectBulletHits(){
 
  }
 
-//  void Game::render(){
-//     renderer.render(map, tankA, tankB, bullets);
-//  }
 bool Game::judgeGame(){    // false if not over, otherwise true
     if(!(tankA.isAlive() && tankB.isAlive())){
         gameOver=true;
         if((!tankA.isAlive()) && tankB.isAlive()){
-            std::cout<<"Tank B won!\n";
+            // std::cout<<"Tank B won!\n";/
+            gameResult=2;
         }
         else if((!tankB.isAlive()) && tankA.isAlive()){
-            std::cout<<"Tank A won!\n";
+            // std::cout<<"Tank A won!\n";
+            gameResult=1;
         }
-        else std::cout<<"Draw! Good game!\n";
+        // else std::cout<<"Draw! Good game!\n";
+        else gameResult=3;
         return true;
     }
     return false;
 }
+
+void Game::showGameResult(){
+    if(gameResult==1) std::cout<<"\033[1;31m Tank A won! \033[0m\n"<<"\n"<<RESET;
+    else if(gameResult==2) std::cout<<"\033[1;31m Tank B won! \033[0m\n"<<"\n"<<RESET;
+    else if(gameResult==3) std::cout<<"\033[1;31m Draw! Good game! \033[0m\n"<<"\n"<<RESET;
+}
+

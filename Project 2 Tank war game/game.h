@@ -24,6 +24,7 @@ class Game{
     Move dir_A, dir_B;
     int turn;
     bool gameOver=false;
+    int gameResult; // 1: tankA won  2: tankB won  3: draw
     
     public:
     Game(GameMode, int);
@@ -39,5 +40,6 @@ class Game{
     void removeUsedBullet();
     // void render();
     bool judgeGame();
+    void showGameResult();
     // bool isGameOver();
 };

@@ -17,6 +17,6 @@ void Map::shrink(){
 }
 bool Map::isInMap(const Tank& tank) const{
     auto [x, y]=tank.getPos();
-    if(MAX_SIZE-size<=x && x<=size && MAX_SIZE-size<=y && y<=size) return true;
+    if((MAX_SIZE-size)/2<=x && x<=(MAX_SIZE+size)/2-1 && (MAX_SIZE-size)/2<=y && y<=(MAX_SIZE+size)/2-1) return true;
     else return false;
 } 

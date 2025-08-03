@@ -23,10 +23,11 @@ void Bullet::move(){
     else if(direction==D_Down) new_y_pos+=2;
     else if(direction==D_Left) new_x_pos-=2;
     else if(direction==D_Right) new_x_pos+=2;
-    if(new_x_pos>=0 && new_x_pos<=MAX_SIZE && new_y_pos>=0 && new_y_pos<=MAX_SIZE){ // ensure within the initial map
+    if(new_x_pos>=0 && new_x_pos<MAX_SIZE && new_y_pos>=0 && new_y_pos<MAX_SIZE){ // ensure within the initial map
         x_pos=new_x_pos;
         y_pos=new_y_pos;
     }
+    else canExplode=false;  // become invalid if the bullet is going to leave the map
 }
 bool Bullet::isHit(const Tank& tank){
     // int tank_x_pos, tank_y_pos;

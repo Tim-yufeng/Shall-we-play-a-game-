@@ -7,6 +7,21 @@ const char INVALID_AREA='#';
 const char BULLET='*';
 const int ORIGIN_SIZE=20;
 
+char convertSymbol(char sym){
+    if(sym=='^') return 'U';
+    else if(sym=='v') return 'D';
+    else if(sym=='<') return 'L';
+    else if(sym=='>') return 'R';
+    else return '?';
+}
+char recoverSymbole(char sym){
+    if(sym=='U') return '^';
+    else if(sym=='D') return 'v';
+    else if(sym=='L') return '<';
+    else if(sym=='R') return '>';
+    else if(sym=='B') return 'B';
+    else return '?';
+}
 
 void Renderer::render(const Map& map, const Tank& t1, const Tank& t2, const std::vector<Bullet>& bullets, bool showDirection, int turn){
     int size=map.getSize();
@@ -31,34 +46,39 @@ void Renderer::render(const Map& map, const Tank& t1, const Tank& t2, const std:
             auto [x, y] = b.getPos();
             if (x >= 0 && x < ORIGIN_SIZE && y >= 0 && y < ORIGIN_SIZE)
                 grid[y][x] = BULLET;
-    std::cout << "Bullet " << num << ": pos=(" << x << "," << y << "), canExplode=" << b.canExplode << "\n";
+    // std::cout << "Bullet " << num << ": pos=(" << x << "," << y << "), canExplode=" << b.canExplode << "\n";
         }
     }
     // Print two tanks
-    if (map.isInMap(t1)) {
-        auto [x, y] = t1.getPos();
-        if (x >= 0 && x < ORIGIN_SIZE && y >= 0 && y < ORIGIN_SIZE)
-            if(showDirection) grid[y][x] = t1.getSymbol();
-            else grid[y][x] = t1.getLabel();
-    }
+    // if (map.isInMap(t1)) {
+        auto [x1, y1] = t1.getPos();
+        if (x1 >= 0 && x1 < ORIGIN_SIZE && y1 >= 0 && y1 < ORIGIN_SIZE){
+            if(showDirection) grid[y1][x1] = t1.getSymbol();
+            else grid[y1][x1] = t1.getLabel();
+        }
+    // }
 
-    if (map.isInMap(t2)) {
-        auto [x, y] = t2.getPos();
-        if (x >= 0 && x < ORIGIN_SIZE && y >= 0 && y < ORIGIN_SIZE)
-            if(showDirection) grid[y][x] = t2.getSymbol();
-            else grid[y][x] = t2.getLabel();
-    }
+    // if (map.isInMap(t2)) {
+        auto [x2, y2] = t2.getPos();
+        if (x2 >= 0 && x2 < ORIGIN_SIZE && y2 >= 0 && y2 < ORIGIN_SIZE){
+            if(showDirection) grid[y2][x2] = convertSymbol(t2.getSymbol());
+            else grid[y2][x2] = t2.getLabel();
+        }
+    // }
 
-    std::cout << "Map (size: " << size << "x" << size << "):\n";
+    std::cout <<YELLOW<< "Map (size: " << size << "x" << size << "):\n"<<RESET;
     for (int y = 0; y < ORIGIN_SIZE; y++) {
         for (int x = 0; x < ORIGIN_SIZE; x++) {
-            std::cout<<grid[y][x]<<' ';
+            if(grid[y][x]=='A'||grid[y][x]=='^'||grid[y][x]=='v'||grid[y][x]=='<'||grid[y][x]=='>') std::cout<<RED<<grid[y][x]<<RESET<<' ';   // paint color to A and B
+            else if(grid[y][x]=='B'||grid[y][x]=='U'||grid[y][x]=='D'||grid[y][x]=='L'||grid[y][x]=='R') std::cout<<BLUE<<recoverSymbole(grid[y][x])<<RESET<<' ';
+            else if(grid[y][x]=='*') std::cout<<PURPLE<<grid[y][x]<<RESET<<' ';
+            else std::cout<<grid[y][x]<<' ';
         }
         std::cout<<std::endl;
     }
-    std::cout<<"Turn: "<<turn<<std::endl;
-    std::cout << "Tank " << t1.getLabel() << " Life: " << t1.getLifePt() << " | Pos: (" << t1_x << "," << t1_y << ")"<<std::endl;
-    std::cout << "Tank " << t2.getLabel() << " Life: " << t2.getLifePt() << " | Pos: (" << t2_x << "," << t2_y << ")"<<std::endl;
-    std::cout << "Bullets: " << bullets.size() << std::endl;
-    std::cout << "-------------------------------------------"<<std::endl;
+    std::cout <<YELLOW<<"Turn: "<<turn<<std::endl<<RESET;
+    std::cout <<GREEN<< "Tank " << t1.getLabel() << " Life: " << t1.getLifePt() <<RESET << " | " << CYAN << "Pos: (" << t1_x << "," << t1_y << ")"<<std::endl<<RESET;
+    std::cout <<GREEN<< "Tank " << t2.getLabel() << " Life: " << t2.getLifePt() <<RESET << " | " << CYAN << "Pos: (" << t2_x << "," << t2_y << ")"<<std::endl<<RESET;
+    std::cout <<YELLOW<< "Bullets: " << bullets.size() << std::endl<<RESET;
+    std::cout <<YELLOW<< "-------------------------------------------"<<std::endl<<RESET;
 }

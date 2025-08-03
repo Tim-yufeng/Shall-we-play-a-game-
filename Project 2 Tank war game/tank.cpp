@@ -81,7 +81,7 @@ Tank::Tank(int lifept, int x, int y, char l, Direction dir){ // constructor
             new_y_pos++;
         }
     }
-    if(new_x_pos>=0 && new_x_pos<=MAX_SIZE && new_y_pos>=0 && new_y_pos<=MAX_SIZE){ // ensure within the initial map
+    if(new_x_pos>=0 && new_x_pos<MAX_SIZE && new_y_pos>=0 && new_y_pos<MAX_SIZE){ // ensure within the initial map
         x_pos=new_x_pos;
         y_pos=new_y_pos;
     }
