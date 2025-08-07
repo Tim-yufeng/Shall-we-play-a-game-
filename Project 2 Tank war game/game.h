@@ -8,14 +8,13 @@
 #include "common.h"
 #include "AI.h"
 class Tank;
-// class Map;
 class Bullet;
-
 
  // define game class 
 class Game{
     private:
     GameMode game_mode;
+    const char *file_name;
     Map map;
     Tank tankA, tankB;
     AI ai;
@@ -27,7 +26,7 @@ class Game{
     int gameResult; // 1: tankA won  2: tankB won  3: draw
     
     public:
-    Game(GameMode, int);
+    Game(GameMode, int, const char*);
     bool showDirection = false;
     int getTurn();
     void start();
@@ -38,8 +37,10 @@ class Game{
     void detectBulletHits();
     void checkShrink();
     void removeUsedBullet();
-    // void render();
     bool judgeGame();
     void showGameResult();
-    // bool isGameOver();
+    void save(std::string fileName);
+    void load(std::string fileName);
+    void log();
+    void clearLogFile();
 };

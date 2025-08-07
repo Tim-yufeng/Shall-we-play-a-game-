@@ -15,7 +15,7 @@ int Map::getTurn() const{
 void Map::shrink(){
     size-=2;
 }
-bool Map::isInMap(const Tank& tank) const{
+bool Map::isInMap(const Tank& tank) const{   // judging whether within map (for tanks only!)
     auto [x, y]=tank.getPos();
     if((MAX_SIZE-size)/2<=x && x<=(MAX_SIZE+size)/2-1 && (MAX_SIZE-size)/2<=y && y<=(MAX_SIZE+size)/2-1) return true;
     else return false;

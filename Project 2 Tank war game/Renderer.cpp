@@ -7,6 +7,7 @@ const char INVALID_AREA='#';
 const char BULLET='*';
 const int ORIGIN_SIZE=20;
 
+// two functions for dividing A and B in "showDirection" mode
 char convertSymbol(char sym){
     if(sym=='^') return 'U';
     else if(sym=='v') return 'D';
@@ -25,7 +26,6 @@ char recoverSymbole(char sym){
 
 void Renderer::render(const Map& map, const Tank& t1, const Tank& t2, const std::vector<Bullet>& bullets, bool showDirection, int turn){
     int size=map.getSize();
-    // int t1_x, t1_y, t2_x, t2_y;
     auto [t1_x, t1_y]=t1.getPos();
     auto [t2_x, t2_y]=t2.getPos();
     std::vector<std::vector<char>> grid(ORIGIN_SIZE, std::vector<char>(ORIGIN_SIZE, VALID_AREA));
@@ -38,7 +38,7 @@ void Renderer::render(const Map& map, const Tank& t1, const Tank& t2, const std:
         }
     }
 
-    // Print bullets
+    // Insert bullets
     int num=0;
     for (const Bullet& b : bullets) {
         num++;
@@ -46,26 +46,21 @@ void Renderer::render(const Map& map, const Tank& t1, const Tank& t2, const std:
             auto [x, y] = b.getPos();
             if (x >= 0 && x < ORIGIN_SIZE && y >= 0 && y < ORIGIN_SIZE)
                 grid[y][x] = BULLET;
-    // std::cout << "Bullet " << num << ": pos=(" << x << "," << y << "), canExplode=" << b.canExplode << "\n";
         }
     }
-    // Print two tanks
-    // if (map.isInMap(t1)) {
+    // Insert two tanks
         auto [x1, y1] = t1.getPos();
         if (x1 >= 0 && x1 < ORIGIN_SIZE && y1 >= 0 && y1 < ORIGIN_SIZE){
             if(showDirection) grid[y1][x1] = t1.getSymbol();
             else grid[y1][x1] = t1.getLabel();
         }
-    // }
 
-    // if (map.isInMap(t2)) {
         auto [x2, y2] = t2.getPos();
         if (x2 >= 0 && x2 < ORIGIN_SIZE && y2 >= 0 && y2 < ORIGIN_SIZE){
             if(showDirection) grid[y2][x2] = convertSymbol(t2.getSymbol());
             else grid[y2][x2] = t2.getLabel();
         }
-    // }
-
+        // print map, tank and bullets
     std::cout <<YELLOW<< "Map (size: " << size << "x" << size << "):\n"<<RESET;
     for (int y = 0; y < ORIGIN_SIZE; y++) {
         for (int x = 0; x < ORIGIN_SIZE; x++) {
@@ -76,9 +71,12 @@ void Renderer::render(const Map& map, const Tank& t1, const Tank& t2, const std:
         }
         std::cout<<std::endl;
     }
+    // print information about current turn
     std::cout <<YELLOW<<"Turn: "<<turn<<std::endl<<RESET;
     std::cout <<GREEN<< "Tank " << t1.getLabel() << " Life: " << t1.getLifePt() <<RESET << " | " << CYAN << "Pos: (" << t1_x << "," << t1_y << ")"<<std::endl<<RESET;
     std::cout <<GREEN<< "Tank " << t2.getLabel() << " Life: " << t2.getLifePt() <<RESET << " | " << CYAN << "Pos: (" << t2_x << "," << t2_y << ")"<<std::endl<<RESET;
-    std::cout <<YELLOW<< "Bullets: " << bullets.size() << std::endl<<RESET;
+    std::cout <<YELLOW<< "Fire CD: " << t1.getFireCD()<<"  "<<RESET;
+    if(t1.getFireCD()==0) std::cout<<"\033[1;31m"<<"Fire next turn!"<<RESET;
+    std::cout<< std::endl;
     std::cout <<YELLOW<< "-------------------------------------------"<<std::endl<<RESET;
 }

@@ -20,9 +20,9 @@ std::cout<<"   -p <point> | --initial-life=<point>  Specify the initial life poi
 
 int main(int argc, char *argv[]) {
     int opt;
-    const char* log_file="tankwar.log";
+    const char* log_file="tankwar.log";   // default log file
     GameMode mode = PVP;
-    int init_lifept=5;
+    int init_lifept=5;   // default initial life point
     bool show_help=false;
 
     const struct option long_options[] = {
@@ -67,12 +67,12 @@ if(show_help){
     print_help();
     return 0;
 }
-std::cout << "Config:\n"   // print config information
+std::cout <<"\033[96;1m"<< "You have chosen:\n"   // print config information
           << "  Log file: " << log_file << "\n"
           << "  Game mode: " << (mode == PVP ? "PVP" : (mode == PVE ? "PVE" : "DEMO")) << "\n"
-          << "  Initial life: " << init_lifept << "\n";
+          << "  Initial life: " << init_lifept << "\n"<<RESET;
 
-    Game game(mode, init_lifept);
+    Game game(mode, init_lifept, log_file);
     game.start();
     return 0;
 }

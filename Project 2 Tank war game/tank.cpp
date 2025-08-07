@@ -1,7 +1,6 @@
 #include<iostream>
 #include "tank.h"
 #include "bullet.h"
-// #include "game.h"
 #include "common.h"
 Tank::Tank(int lifept, int x, int y, char l, Direction dir){ // constructor
         lifePt=lifept;
@@ -89,23 +88,9 @@ Tank::Tank(int lifept, int x, int y, char l, Direction dir){ // constructor
 
  // function for firing
  Bullet Tank::make_fire(){
-    // if(fireCD!=0) return;   // can't fire right now
     int bullet_x=x_pos , bullet_y=y_pos ;
-    if(direction == D_Up){
-        bullet_y-=2;
-    }
-    else if(direction == D_Down){
-        bullet_y+=2;
-    }
-    else if(direction == D_Left){
-        bullet_x-=2;
-    }
-    else if(direction == D_Right){
-        bullet_x+=2;
-    }
     fireCD=3;
     return Bullet(bullet_x, bullet_y, direction);
-    // TODO: fire logic
  }
  void Tank::bulletCoolDown(){
     fireCD--;
@@ -115,6 +100,13 @@ Tank::Tank(int lifept, int x, int y, char l, Direction dir){ // constructor
  void Tank::takeDamage(int damage){
     if(lifePt>damage){
         lifePt-=damage;
+        if(damage==2){  // damaged by enemy's bullet
+            std::cout << RED << "[Tank "<<label<<" took a hit!] -2 HP" << RESET << std::endl;
+        }
+        else if (damage==1){ // damaged due to map shrink
+            std::cout << RED << "[Tank "<<label<<" outside map!] -1 HP" << RESET << std::endl;
+        }
+        
     }
     else lifePt=0;
  }
